@@ -342,7 +342,7 @@ int main(int argc, char* argv[])
 		glTranslatef(tile.position.x + adjust.x, tile.position.y + adjust.y, 0);
 
 //		glViewport((tile.position.x + adjust.x) * g_tile_size.x,
-//			window.GetHeight() - (tile.position.y + adjust.y + 1) * g_tile_size.y,
+//			window.getSize().y - (tile.position.y + adjust.y + 1) * g_tile_size.y,
 //			g_tile_size.x, g_tile_size.y);
 
 		tile.Draw();
@@ -387,16 +387,16 @@ int main(int argc, char* argv[])
 
 	bool banner_play = true;
 
-	while (window.IsOpened())
+	while (window.isOpen())
 	{
 		sf::Event ev;
-		while (window.PollEvent(ev))
+		while (window.pollEvent(ev))
 		{
-			switch (ev.Type)
+			switch (ev.type)
 			{
 			case sf::Event::MouseMoved:
-				mouse_position.x = ev.MouseMove.X;
-				mouse_position.y = ev.MouseMove.Y;
+				mouse_position.x = ev.mouseMove.x;
+				mouse_position.y = ev.mouseMove.y;
 				break;
 
 			case sf::Event::MouseButtonPressed:
@@ -457,14 +457,14 @@ int main(int argc, char* argv[])
 				break;
 
 			case sf::Event::Closed:
-				window.Close();
+				window.close();
 				break;
 
 			case sf::Event::KeyPressed:
-				switch (ev.Key.Code)
+				switch (ev.key.code)
 				{
 					// reload all tiles
-				case sf::Keyboard::Back:
+				case sf::Keyboard::Backspace:
 					g_worker.Clear();
 					full_banner = nullptr;
 					foreach (Tile* tile, g_tiles)
@@ -480,14 +480,14 @@ int main(int argc, char* argv[])
 
 					// exit app
 				case sf::Keyboard::Escape:
-					window.Close();
+					window.close();
 					break;
 				}
 				break;
 			}
 		}
 
-		window.SetActive();
+		window.setActive();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0, 0, 0, 1.f);
@@ -496,19 +496,19 @@ int main(int argc, char* argv[])
 
 		if (full_banner)
 		{
-			const float window_aspect = (float)window.GetWidth() / (float)window.GetHeight();
+			const float window_aspect = (float)window.getSize().x / (float)window.getSize().y;
 
 			render_aspect = Clamp(window_aspect, min_aspect, max_aspect);
 
 			if (render_aspect > window_aspect)
 			{
-				const GLsizei h = GLsizei(window.GetWidth() / render_aspect);
-				glViewport(0, (window.GetHeight() - h) / 2, window.GetWidth(), h);
+				const GLsizei h = GLsizei(window.getSize().x / render_aspect);
+				glViewport(0, (window.getSize().y - h) / 2, window.getSize().x, h);
 			}
 			else
 			{
-				const GLsizei w = GLsizei(window.GetHeight() * render_aspect);
-				glViewport((window.GetWidth() - w) / 2, 0, w, window.GetHeight());
+				const GLsizei w = GLsizei(window.getSize().y * render_aspect);
+				glViewport((window.getSize().x - w) / 2, 0, w, window.getSize().y);
 			}
 
 			// TODO: don't need to push everything
@@ -544,7 +544,7 @@ int main(int argc, char* argv[])
 
 		lk.unlock();
 
-		window.Display();
+		window.display();
 
 		// TODO: could be improved
 		// limit fps
@@ -555,18 +555,18 @@ int main(int argc, char* argv[])
 
 		if (10 == frame_count)
 		{
-			sleep_time = (1.f / desired_fps) - (clock.GetElapsedTime() / frame_count - sleep_time);
+			sleep_time = (1.f / desired_fps) - (clock.getElapsedTime().asMilliseconds() / frame_count - sleep_time);
 
 			//std::cout << "sleep_time: " << (1.f / sleep_time) << '\n';
 
 			frame_count = 0;
-			clock.Reset();
+			clock.restart();
 		}
 		else
 			++frame_count;
 
 		// TODO: fix
-		sf::Sleep(1000 / 60);
+		sf::sleep(sf::milliseconds(1000 / 60));
 	}
 
 	// TODO: this

@@ -24,6 +24,7 @@ distribution.
 #include "Animator.h"
 #include "Endian.h"
 #include "Funcs.h"
+#include <cmath>
 
 namespace WiiBanner
 {

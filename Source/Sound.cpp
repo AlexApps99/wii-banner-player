@@ -229,15 +229,15 @@ class BannerStream : public sf::SoundStream
 public:
 	BannerStream() : position(0), loop_position(-1) {}
 
-	bool Load(std::istream& file);
+	bool load(std::istream& file);
 
-	void Restart() { Stop(); position = 0; }
+	void Restart() { stop(); position = 0; }
 
 private:
-	virtual bool OnStart();
-	virtual bool OnGetData(sf::SoundStream::Chunk& Data);
+	virtual bool onStart();
+	virtual bool onGetData(sf::SoundStream::Chunk& Data);
 
-	virtual void OnSeek(sf::Uint32)
+	virtual void onSeek(sf::Time)
 	{
 		// TODO:
 	}
@@ -257,7 +257,7 @@ private:
 	SoundFormat format;
 };
 
-bool BannerStream::Load(std::istream& file)
+bool BannerStream::load(std::istream& file)
 {
 	BNS bns_file;
 	FourCC magic;
@@ -299,35 +299,35 @@ bool BannerStream::Load(std::istream& file)
 		in.seekg(in_start, in.beg);
 		char *data = new char[file_len];
 		in.read(data, file_len);
-		ret = SoundData.LoadFromMemory(data, file_len);
+		ret = SoundData.loadFromMemory(data, file_len);
 		delete[] data;
 	}
 	else
 	{
 		s16 *pcm = new s16[bns_file.data.size * 2];
 		bns_file.DecodeToPCM(pcm);
-		ret = SoundData.LoadFromSamples(pcm, bns_file.GetSamplesCount(),
+		ret = SoundData.loadFromSamples(pcm, bns_file.GetSamplesCount(),
 			bns_file.GetChannelsCount(), bns_file.GetSampleRate());
 		delete[] pcm;
 	}
 
 	if (ret)
 	{
-		Initialize(SoundData.GetChannelsCount(), SoundData.GetSampleRate());
-		const sf::Int16* data = SoundData.GetSamples();
-		samples.assign(data, data + SoundData.GetSamplesCount());
+		initialize(SoundData.getChannelCount(), SoundData.getSampleRate());
+		const sf::Int16* data = SoundData.getSamples();
+		samples.assign(data, data + SoundData.getSampleCount());
 	}
 
 	return ret;
 }
 
-bool BannerStream::OnStart()
+bool BannerStream::onStart()
 {
 	//position = 0;
 	return true;
 }
 
-bool BannerStream::OnGetData(sf::SoundStream::Chunk& chunk)
+bool BannerStream::onGetData(sf::SoundStream::Chunk& chunk)
 {
 	// Check if there is enough data to stream
 	if (samples.size() == position)
@@ -339,9 +339,9 @@ bool BannerStream::OnGetData(sf::SoundStream::Chunk& chunk)
 	if (position + buffer_size >= samples.size())
 	{
 		// Play the last buffer
-		chunk.Samples   = &samples[position];
-		chunk.NbSamples = samples.size() - position;
-		position += chunk.NbSamples;
+		chunk.samples   = &samples[position];
+		chunk.sampleCount = samples.size() - position;
+		position += chunk.sampleCount;
 
 		if (loop_position < position)
 			position = loop_position;
@@ -350,8 +350,8 @@ bool BannerStream::OnGetData(sf::SoundStream::Chunk& chunk)
 	{
 		// Fill the stream chunk with a pointer to the audio data and the number
 		// of samples to stream
-		chunk.Samples   = &samples[position];
-		chunk.NbSamples = buffer_size;
+		chunk.samples   = &samples[position];
+		chunk.sampleCount = buffer_size;
 
 		position += buffer_size;
 	}
@@ -367,7 +367,7 @@ Sound::~Sound()
 bool Sound::Load(std::istream& file)
 {
 	auto* const s = new BannerStream;
-	if (s->Load(file))
+	if (s->load(file))
 	{
 		stream = s;
 		return true;
@@ -381,17 +381,17 @@ bool Sound::Load(std::istream& file)
 
 void Sound::Play()
 {
-	stream->Play();
+	stream->play();
 }
 
 void Sound::Pause()
 {
-	stream->Pause();
+	stream->pause();
 }
 
 void Sound::Stop()
 {
-	stream->Stop();
+	stream->stop();
 }
 
 void Sound::Restart()

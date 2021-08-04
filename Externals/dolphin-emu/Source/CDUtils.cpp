@@ -16,6 +16,8 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
+
+#include <unistd.h>
 #endif // WIN32
 
 #ifdef __linux__

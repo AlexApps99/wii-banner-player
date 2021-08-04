@@ -2,7 +2,10 @@ project(wii-banner-player)
 
 include_directories(Externals/dolphin-emu/Source)
 
-link_libraries(sfml-window sfml-graphics sfml-audio)
+find_package(SFML 2.5 COMPONENTS graphics audio REQUIRED)
+find_package(OpenGL REQUIRED)
+find_package(GLEW REQUIRED)
+find_package(Threads REQUIRED)
 
 set(CMAKE_CXX_FLAGS "-Wall -std=c++0x")
 
@@ -33,3 +36,4 @@ Source/Window.cpp
 Source/WrapGx.cpp
 )
 
+target_link_libraries(wii-banner-player sfml-graphics sfml-audio ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} Threads::Threads)

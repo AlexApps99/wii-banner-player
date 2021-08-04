@@ -24,6 +24,7 @@ distribution.
 #include <stack>
 
 #include <GL/glew.h>
+#include <cmath>
 
 #include "Layout.h"
 #include "Picture.h"
